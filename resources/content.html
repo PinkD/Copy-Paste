@@ -1,0 +1,38 @@
+{{define "content"}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <meta charset="utf-8">
+    <head>
+        <meta charset="UTF-8">
+        <title>Copy-Paste</title>
+        <link rel="stylesheet" href="/css/default.css">
+        <script src="/js/highlight.pack.js"></script>
+        <script src="/js/highlightjs-line-numbers.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script>hljs.initLineNumbersOnLoad();</script>
+        <style>
+            td.hljs-ln-numbers {
+                text-align: right;
+                color: #ccc;
+                border-right: 1px solid #999;
+                vertical-align: top;
+                padding-right: 5px;
+
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            td.hljs-ln-code {
+                padding-left: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <pre><code class="{{.highlight}}">{{.content}}</code></pre>
+    </body>
+    </html>
+{{end}}

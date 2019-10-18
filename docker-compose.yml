@@ -1,0 +1,23 @@
+version: "3"
+services:
+  redis:
+    build: redis
+  postgres:
+    image: "postgres:latest"
+    volumes:
+      - # TODO: config your volume here
+      - /data/cpst:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=cpst
+      - POSTGRES_PASSWORD=cpst
+      - POSTGRES_DB=cpst
+  server:
+    build: .
+    hostname: cpst-server
+    depends_on:
+      - redis
+      - postgres
+    restart: on-failure
+    ports:
+      # TODO: config your port here
+      - 80:80
