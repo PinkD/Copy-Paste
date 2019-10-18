@@ -5,7 +5,7 @@ services:
   postgres:
     image: "postgres:latest"
     volumes:
-      - # TODO: config your volume here
+      # TODO: config your volume here
       - /data/cpst:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=cpst

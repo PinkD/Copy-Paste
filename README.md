@@ -1,38 +1,62 @@
 # Copy Paste
 
-Copy and paste code
+Copy and paste text or code
+
+## Build
+
+```bash
+# clone this repo
+# edit docker-compose.yml for your configuration
+docker-compose up --build
+```
 
 ## Usage
 
 ```bash
-cat file | curl -F "content=<-" you_host/new
+cat file | curl -F "content=<-" https://cpst.pinkd.moe/new
 ```
+
+you can specify highlight like this:
+
+`https://cpst.pinkd.moe/苟苟苟苟苟苟苟/go`
 
 ## Library And Resources
 
 `highlight.pack.js` is from [highlight.js](https://github.com/highlightjs/highlight.js)
 
-`highlightjs-line-numbers.min.js` is from [highlightjs-line-numbers.js](https://github.com/wcoder/highlightjs-line-numbers.js/blob/master/src/highlightjs-line-numbers.js)
+`highlightjs-line-numbers.min.js` is from [highlightjs-line-numbers.js](https://github.com/wcoder/highlightjs-line-numbers.js)
 
-`favicon.ico` is from Internet
+`favicon.ico` is from the Internet
 
 ## Benchmark
 
 ### post
-- new content(HDD)
-  - 1m39.4464003s elapsed, 114840 lines sent, 1154.79 op/s
-- new content(memory)
-  - 13.6784482s elapsed, 114840 lines sent, 8395.69 op/s
+- new content with DB in HDD
+  - 1m39.4464003s elapsed
+  - 114840 lines sent
+  - `1154.79 op/s`
+- new content with DB in /tmp
+  - 13.6784482s elapsed
+  - 114840 lines sent
+  - `8395.69 op/s`
 - new exists content
-  - 6.6683451s elapsed, 114840 lines sent, 17221.66 op/s
+  - 6.6683451s elapsed
+  - 114840 lines sent
+  - `17221.66 op/s`
 
 ## get
 - with redis
-  - 5.302129s elapsed, 111815 lines got, 21088.70 op/s
-- without redis(memory)
-  - 10.1018404s elapsed, 111815 lines got, 11068.78 op/s
-- without redis(HDD)
-  - 10.659549s elapsed, 111815 lines got, 10489.66 op/s
+  - 5.302129s elapsed
+  - 111815 lines got
+  - `21088.70 op/s`
+- without redis with DB in /tmp
+  - 10.1018404s elapsed
+  - 111815 lines got
+  - `11068.78 op/s`
+- without redis with DB in HDD
+  - 10.659549s elapsed
+  - 111815 lines got
+  - `10489.66 op/s`
 
 
 ## License

@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o server main.go
 FROM alpine:latest
 
 WORKDIR /root
-ADD resources templates
+ADD resources resources
 COPY --from=builder /build/server .
 EXPOSE 80
 
