@@ -124,5 +124,4 @@ func (g *codeGenerator) getContent(code uint64) (content string, err error) {
 func SetEncodeChars(chars string) {
 	encodeChars = chars
 	initCharArray()
-	fmt.Println(charLen)
 }

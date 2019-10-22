@@ -21,7 +21,9 @@ type server struct {
 }
 
 func (s *server) index(c echo.Context) error {
-	return c.String(http.StatusOK, fmt.Sprintf("Usage:\n    cat filename | curl -F \"content=<-\" %s/new\n", c.Request().Host))
+	return c.Render(http.StatusOK, "index", map[string]string{
+		"host": c.Request().Host,
+	})
 }
 
 func (s *server) getContent(c echo.Context) error {
@@ -90,22 +92,22 @@ func (t *templateRender) Render(w io.Writer, name string, data interface{}, c ec
 }
 
 func NewServer(redisAddr, dbAddr string) *server {
-	server := &server{
+	s := &server{
 		e: echo.New(),
 		g: newCodeGenerator(redisAddr, dbAddr),
 	}
-	server.e.GET("/", server.index)
-	server.e.Static("/js", "resources")
-	server.e.Static("/css", "resources")
-	server.e.File("/favicon.ico", "resources/favicon.ico")
-	server.e.GET("/:code/:highlight", server.getContent)
-	server.e.GET("/:code", server.getContent)
-	server.e.POST("/new", server.newContent)
+	s.e.GET("/", s.index)
+	s.e.Static("/js", "resources")
+	s.e.Static("/css", "resources")
+	s.e.File("/favicon.ico", "resources/favicon.ico")
+	s.e.GET("/:code/:highlight", s.getContent)
+	s.e.GET("/:code", s.getContent)
+	s.e.POST("/new", s.newContent)
 	render := &templateRender{
-		templates: template.Must(template.ParseFiles("resources/content.html")),
+		templates: template.Must(template.ParseGlob("resources/*.html")),
 	}
-	server.e.Renderer = render
-	return server
+	s.e.Renderer = render
+	return s
 }
 
 //MaxInt64 is 9223372036854775807, bigger than 62^10

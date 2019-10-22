@@ -1,0 +1,65 @@
+{{define "index"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Copy-Paste</title>
+    <style>
+        .form {
+            margin: auto;
+            width: 50%;
+            padding: 10px;
+            text-align: center
+        }
+
+        .command {
+            width: 50%;
+            padding-top: 20px;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body class="form">
+<h1>Copy Paste</h1>
+<form action="/new" method="post">
+    <label>
+        <textarea id="content" name="content" rows="30" cols="120">Paste text or drag text file here</textarea>
+    </label>
+    <br>
+    <input type="submit">
+</form>
+<div class="command">
+    Or you can use curl to upload text like this:
+    <br>
+    <pre>    cat filename | curl -F "content=<-" {{.host}}/new</pre>
+</div>
+</body>
+<script>
+    const id = "content";
+
+    function handleFileSelect(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        var files = evt.dataTransfer.files; // FileList object.
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            document.getElementById(id).value = event.target.result;
+        };
+        reader.readAsText(files[0], "UTF-8");
+    }
+
+    function handleDragOver(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    }
+
+    // Setup the dnd listeners.
+    var dropZone = document.getElementById(id);
+    dropZone.addEventListener('dragover', handleDragOver, false);
+    dropZone.addEventListener('drop', handleFileSelect, false);
+</script>
+</html>
+{{end}}
