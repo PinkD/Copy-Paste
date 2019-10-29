@@ -2,8 +2,10 @@ version: "3"
 services:
   redis:
     build: redis
+    restart: always
   postgres:
     image: "postgres:latest"
+    restart: always
     volumes:
       # TODO: config your volume here
       - /data/cpst:/var/lib/postgresql/data
@@ -17,7 +19,7 @@ services:
     depends_on:
       - redis
       - postgres
-    restart: on-failure
+    restart: always
     ports:
       # TODO: config your port here
       - 80:80
