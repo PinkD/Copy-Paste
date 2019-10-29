@@ -13,14 +13,15 @@ import (
 
 const maxContentLen = 256 * bytes.KB
 
-var codeLen = 6
-
 type server struct {
 	g *codeGenerator
 	e *echo.Echo
 }
 
 func (s *server) index(c echo.Context) error {
+	if strings.Contains(c.Request().UserAgent(), "curl") {
+		return c.String(http.StatusOK, fmt.Sprintf("cat filename | curl -F \"content=<-\" %s/new\n", c.Request().Host))
+	}
 	return c.Render(http.StatusOK, "index", map[string]string{
 		"host": c.Request().Host,
 	})
@@ -73,7 +74,7 @@ func (s *server) newContent(c echo.Context) error {
 	code, err := s.g.save(sha, content)
 	if err != nil {
 		c.Logger().Error(err)
-		return c.String(http.StatusInternalServerError, "fail to save content")
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("fail to save content: %s", err.Error()))
 	}
 	result := fmt.Sprintf("%s/%s\n", c.Request().Host, NumberToChar(code))
 	return c.String(http.StatusOK, result)
@@ -108,10 +109,4 @@ func NewServer(redisAddr, dbAddr string) *server {
 	}
 	s.e.Renderer = render
 	return s
-}
-
-//MaxInt64 is 9223372036854775807, bigger than 62^10
-//So when len(encodeChars) is 62, max code len is 10
-func SetCodeLen(length int) {
-	codeLen = length
 }

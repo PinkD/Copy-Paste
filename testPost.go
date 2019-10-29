@@ -62,7 +62,8 @@ func main() {
 				wg.Add(1)
 				start := time.Now()
 				//response, err := client.PostForm("http://server/new", url.Values{"content": {line}})
-				response, err := client.PostForm("http://192.168.1.1:8080/new", url.Values{"content": {line}})
+				//response, err := client.PostForm("http://192.168.1.1:8080/new", url.Values{"content": {line}})
+				response, err := client.PostForm("http://127.0.0.1/new", url.Values{"content": {line}})
 				if err != nil { //request fail, reuse
 					reuseChan <- line
 					log.Println(err)

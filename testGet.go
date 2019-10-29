@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"pinkd.moe/x/copy-paste-text/cpst"
+	"pinkd.moe/x/Copy-Paste/cpst"
 	"strconv"
 	"sync"
 	"time"

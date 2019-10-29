@@ -4,12 +4,10 @@ import (
 	"github.com/go-redis/redis"
 	"runtime"
 	"strconv"
-	"sync/atomic"
 )
 
 type redisClient struct {
 	r *redis.Client
-	c uint64
 }
 
 func newRedis(addr string) *redisClient {
@@ -17,14 +15,7 @@ func newRedis(addr string) *redisClient {
 		r: redis.NewClient(&redis.Options{
 			Addr:     addr,
 			PoolSize: runtime.NumCPU(),
-		}),
-		c: 0,
-	}
-}
-
-func (r *redisClient) genCode() (uint64, error) {
-	count := atomic.AddUint64(&r.c, 1) - 1
-	return count, nil
+		})}
 }
 
 func (r *redisClient) ContainsContent(sha, content string) (code uint64, err error) {
@@ -48,8 +39,4 @@ func (r *redisClient) SaveContent(data *contentData) error {
 
 func (r *redisClient) GetContent(code uint64) (string, error) {
 	return r.r.Get(string(code)).Result()
-}
-
-func (r *redisClient) setCount(count uint64) {
-	r.c = count
 }

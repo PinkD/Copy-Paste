@@ -4,12 +4,15 @@ import (
 	"crypto/sha1"
 	"fmt"
 	_ "github.com/lib/pq"
+	"math"
 	"strings"
+	"sync/atomic"
 )
 
 var encodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz"
 var charLen int
 var encodeCharArray []string
+var codeLen = 6
 
 func NumberToChar(number uint64) (code string) {
 	for bit := 0; bit < codeLen; bit++ {
@@ -46,16 +49,29 @@ func zeroCodeCount(code string) int {
 	return strings.Count(code, encodeCharArray[0])
 }
 
+var initFlag = false
+
 func initCharArray() {
 	for _, char := range encodeChars {
 		encodeCharArray = append(encodeCharArray, string(char))
 	}
 	charLen = len(encodeCharArray)
+	initFlag = true
 }
 
 type codeGenerator struct {
-	r  *redisClient
-	db *dB
+	r        *redisClient
+	db       *dB
+	count    uint64
+	maxCount uint64
+}
+
+func (g *codeGenerator) genCode() (uint64, error) {
+	count := atomic.AddUint64(&g.count, 1) - 1
+	if g.maxCount <= count {
+		return g.maxCount, fmt.Errorf("Sorry, server can only store %d records\n", g.maxCount)
+	}
+	return count, nil
 }
 
 func (g *codeGenerator) sha1(data string) string {
@@ -68,9 +84,12 @@ func newCodeGenerator(redisAddr, dbAddr string) *codeGenerator {
 		r:  newRedis(redisAddr),
 		db: newDB(dbAddr),
 	}
-	code := g.db.GetCount()
-	if code != 0 {
-		g.r.setCount(code + 1)
+	g.maxCount = uint64(math.Pow(float64(charLen), float64(codeLen)))
+	count := g.db.GetCount()
+	g.count = count
+	if count != 0 {
+		g.count++
+		fmt.Printf("Record count: %d/%d, %.2f%% used\n", g.count, g.maxCount, float64(g.count)/float64(g.maxCount)*100)
 	}
 	return g
 }
@@ -91,7 +110,7 @@ func (g *codeGenerator) save(sha, content string) (code uint64, err error) {
 		return //in db
 	}
 	//create new
-	code, err = g.r.genCode()
+	code, err = g.genCode()
 	if err != nil {
 		return
 	}
@@ -122,6 +141,17 @@ func (g *codeGenerator) getContent(code uint64) (content string, err error) {
 }
 
 func SetEncodeChars(chars string) {
+	if initFlag {
+		panic("Please call SetEncodeChars before initialization")
+	}
 	encodeChars = chars
-	initCharArray()
+}
+
+//MaxInt64 is 9223372036854775807, bigger than 62^10
+//So when len(encodeChars) is 62, max code len is 10
+func SetCodeLen(length int) {
+	if initFlag {
+		panic("Please call SetCodeLen before initialization")
+	}
+	codeLen = length
 }
