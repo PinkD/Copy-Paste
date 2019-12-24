@@ -68,7 +68,7 @@ func (db *dB) GetContent(code uint64) (content string, err error) {
 	return
 }
 
-func (db *dB) GetCount() (count uint64) {
+func (db *dB) GetCount() (count uint64, err error) {
 	row, err := db.db.Query("SELECT code FROM content ORDER BY code DESC LIMIT 1")
 	if err != nil {
 		return

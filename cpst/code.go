@@ -85,9 +85,9 @@ func newCodeGenerator(redisAddr, dbAddr string) *codeGenerator {
 		db: newDB(dbAddr),
 	}
 	g.maxCount = uint64(math.Pow(float64(charLen), float64(codeLen)))
-	count := g.db.GetCount()
+	count, err := g.db.GetCount()
 	g.count = count
-	if count != 0 {
+	if err == nil {
 		g.count++
 		fmt.Printf("Record count: %d/%d, %.2f%% used\n", g.count, g.maxCount, float64(g.count)/float64(g.maxCount)*100)
 	}
