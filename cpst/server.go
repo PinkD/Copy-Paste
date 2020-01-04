@@ -18,8 +18,20 @@ type server struct {
 	e *echo.Echo
 }
 
+func (s *server) isClientCurl(c echo.Context) bool {
+	return strings.Contains(c.Request().UserAgent(), "curl")
+}
+
+func (s *server) wrapLink(link string, a ...string) string {
+	if len(a) == 1 {
+		return fmt.Sprintf("<html><body><a href=\"%s\">%s</a></body><html>", a[0], link)
+	} else {
+		return fmt.Sprintf("<html><body><a href=\"%s\">%s</a></body><html>", link, link)
+	}
+}
+
 func (s *server) index(c echo.Context) error {
-	if strings.Contains(c.Request().UserAgent(), "curl") {
+	if s.isClientCurl(c) {
 		return c.String(http.StatusOK, fmt.Sprintf("cat filename | curl -F \"content=<-\" %s/new\n", c.Request().Host))
 	}
 	return c.Render(http.StatusOK, "index", map[string]string{
@@ -53,6 +65,15 @@ func (s *server) getContent(c echo.Context) error {
 		c.Logger().Errorf("got empty content for code %s", code)
 		return echo.ErrNotFound
 	}
+	if highlight == "link" {
+		lineCount := strings.Count(strings.TrimSpace(content), "\n")
+		if lineCount != 0 {
+			c.Logger().Errorf("link option require single line, but the content line count is %d. fallback to text", lineCount)
+			highlight = "text"
+		} else {
+			return c.HTML(http.StatusOK, s.wrapLink(content))
+		}
+	}
 	return c.Render(http.StatusOK, "content", map[string]string{
 		"highlight": highlight,
 		"content":   content,
@@ -76,8 +97,13 @@ func (s *server) newContent(c echo.Context) error {
 		c.Logger().Error(err)
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("fail to save content: %s", err.Error()))
 	}
-	result := fmt.Sprintf("%s/%s\n", c.Request().Host, NumberToChar(code))
-	return c.String(http.StatusOK, result)
+	numberChar := NumberToChar(code)
+	link := fmt.Sprintf("%s/%s\n", c.Request().Host, numberChar)
+	if s.isClientCurl(c) {
+		return c.String(http.StatusOK, link)
+	} else {
+		return c.HTML(http.StatusOK, s.wrapLink(link, numberChar))
+	}
 }
 
 func (s *server) Start(addr string) error {

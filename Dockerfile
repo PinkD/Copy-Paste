@@ -2,11 +2,12 @@
 FROM golang:latest AS builder
 
 WORKDIR /build
-COPY main.go .
+ADD main.go main.go
 ADD cpst cpst
-
-RUN cd cpst && go get -d -v ./...
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o server main.go
+ADD go.mod go.mod
+ADD go.sum go.sum
+RUN mkdir $GOPATH/src/Copy-Paste && mv * $GOPATH/src/Copy-Paste/
+RUN cd $GOPATH/src/Copy-Paste && go mod download && go build -ldflags "-s -w" -o server main.go && mv server /build/
 
 # run
 FROM alpine:latest

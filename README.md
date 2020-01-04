@@ -59,6 +59,13 @@ you can specify highlight like this:
   - `10489.66 op/s`
 
 
+## TODOs
+
+- destroy data after content being viewed
+  - show view count
+- destroy data after a period of time
+- logger system
+
 ## License
 
 ```license

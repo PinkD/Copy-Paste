@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./cpst"
+	"Copy-Paste/cpst"
 	"flag"
 	"fmt"
 )
@@ -15,8 +15,8 @@ func main() {
 	redisHost := *redisHostParam
 	postgresHost := *postgresHostParam
 	//modify code len and encode chars
-	cpst.SetCodeLen(7)
-	cpst.SetEncodeChars("苟利国家生死以岂因祸福避趋之")
+	//cpst.SetCodeLen(7)
+	//cpst.SetEncodeChars("苟利国家生死以岂因祸福避趋之")
 	server := cpst.NewServer(fmt.Sprintf("%s:6379", redisHost), fmt.Sprintf("postgres://cpst:cpst@%s/cpst?sslmode=disable", postgresHost))
 	err := server.Start(listenAddr)
 	if err != nil {
