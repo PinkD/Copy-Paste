@@ -74,6 +74,9 @@ func (s *server) getContent(c echo.Context) error {
 			return c.HTML(http.StatusOK, s.wrapLink(content))
 		}
 	}
+	if s.isClientCurl(c) { // return string when client is curl
+		return c.String(http.StatusOK, content+"\n")
+	}
 	return c.Render(http.StatusOK, "content", map[string]string{
 		"highlight": highlight,
 		"content":   content,
